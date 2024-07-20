@@ -37,7 +37,7 @@ public class InteractEnvironment : MonoBehaviour
 		}
 		else if (hit.transform.GetComponent<Dialog>() != null)
 		{
-			hit.transform.GetComponent<Dialog>().StartDialog(player);
+			hit.transform.GetComponent<Dialog>().Interact(player);
 		}
 	}
 }
