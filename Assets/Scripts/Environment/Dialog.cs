@@ -13,9 +13,13 @@ public class Dialog : MonoBehaviour
     public List<DialogLine> welcomeDialogs;
     public DialogLine areYouSure;
     public DialogLine findRepeat;
+    public DialogLine youAreSmart;
+    public DialogLine youAreWrong;
     public List<DialogLine> endDialogs;
     public List<Item> items;
     public Item needItem;
+    public int needItemIndex;
+    public GameObject buttons;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -55,6 +59,7 @@ public class Dialog : MonoBehaviour
         welcomeDialogsNum = 0;
         startColorIndex = -1;
         endColorIndex = startColorIndex;
+        needItemIndex = 0;
     }
 
     // Update is called once per frame
@@ -71,7 +76,6 @@ public class Dialog : MonoBehaviour
 
         mesh = tMP_Text.mesh;
         vertices = mesh.vertices;
-        Debug.Log(vertices.Length);
 
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -134,6 +138,71 @@ public class Dialog : MonoBehaviour
             dialogNeedToEnd = true;
         }
     }
+    public void AreYouSure()
+    {
+        if (firstShow == true)
+        {
+            currentDialogLine = areYouSure;
+            firstShow = false;
+            //TODO отобрадение кнопок анимация
+            buttons.SetActive(true);
+            phase = DialogPhase.FindedItem;
+        }
+    }
+    public void InteractSure(GameObject player, bool isSure) 
+    {
+        if (phase != DialogPhase.FindedItem)
+            return;
+
+        buttons.SetActive(false);
+        var isMimic = player.GetComponent<InteractEnvironment>().itemInHands.isMimic;
+        if (isMimic && isSure)
+        {
+            //TODO damage player
+            player.GetComponent<PlayerHealth>().Damage();
+            YouWrong();
+            phase = DialogPhase.FindNextItem;
+        }
+        if (!isMimic && isSure)
+        {
+            //TODO next step
+            YouSmart();
+            //FindNextItem(player);
+            phase = DialogPhase.FindNextItem;
+        }
+        if (!isSure)
+        {
+            phase = DialogPhase.FindRepeat;
+            ExitDialog(player);
+            dialogStarted = false;
+            dialogNeedToEnd = false;
+        }
+    }
+    public void YouSmart()
+    {
+        currentDialogLine = youAreSmart;
+    }
+    public void YouWrong()
+    {
+        currentDialogLine = youAreWrong;
+    }
+    public void FindNextItem(GameObject player) 
+    {
+        needItemIndex++;
+        if (needItemIndex < items.Count)
+        {
+            needItem = items[needItemIndex];
+            firstShow = true;
+            Destroy(player.GetComponent<InteractEnvironment>().itemInHands.gameObject);
+            FindRepeat();
+            phase = DialogPhase.FindRepeat;
+        }
+        else
+        {
+            //todo end
+            ExitDialog(player);
+        }
+    }
     public void Interact(GameObject player)  
     {
         if (dialogStarted == false)
@@ -145,7 +214,23 @@ public class Dialog : MonoBehaviour
         {
             WelcomeDialog();
         }
-        if (phase == DialogPhase.FindRepeat)
+        var itemInHands = player.GetComponent<InteractEnvironment>().itemInHands;
+        if (phase == DialogPhase.FindRepeat && itemInHands != null)
+        {
+            if (itemInHands.itemName == needItem.itemName)
+                AreYouSure();
+            else
+                FindRepeat(); //TODO Сказать что нужно Х, а не У
+        }
+        else if (phase == DialogPhase.FindNextItem)
+        {
+            FindNextItem(player);
+        }
+        else if (phase == DialogPhase.FindedItem)
+        {
+            //Нужно выбрать
+        }
+        else if (phase == DialogPhase.FindRepeat)
         {
             FindRepeat();
         }
@@ -162,6 +247,7 @@ public class Dialog : MonoBehaviour
         NotStarted,
         Welcome,
         FindRepeat,
+        FindNextItem,
         FindedItem,
         EndDead
     }

@@ -53,6 +53,15 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Tap"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Drop"",
+                    ""type"": ""Button"",
+                    ""id"": ""9b31de99-c51e-40ad-ac26-5ac031662c05"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -132,6 +141,17 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e224753e-5523-4e50-8edd-4b3ed1ce6bf0"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -147,6 +167,24 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Tap"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Yes"",
+                    ""type"": ""Button"",
+                    ""id"": ""7855d6a2-accb-4980-89d8-b4b4a224379e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""No"",
+                    ""type"": ""Button"",
+                    ""id"": ""5ff26524-4a59-4336-9a7c-b1c273e72194"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -160,8 +198,36 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""action"": ""Next"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ac57c2b2-76c3-4885-b47b-cd37c2ed5b51"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Yes"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""11447021-8a22-4a5c-bb03-a57ec9fe96bf"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""No"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Block"",
+            ""id"": ""91c07b5c-0c58-4924-b89b-fde4f3b63a43"",
+            ""actions"": [],
+            ""bindings"": []
         }
     ],
     ""controlSchemes"": []
@@ -171,9 +237,14 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         m_Gameplay_Movement = m_Gameplay.FindAction("Movement", throwIfNotFound: true);
         m_Gameplay_Look = m_Gameplay.FindAction("Look", throwIfNotFound: true);
         m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
+        m_Gameplay_Drop = m_Gameplay.FindAction("Drop", throwIfNotFound: true);
         // Dialog
         m_Dialog = asset.FindActionMap("Dialog", throwIfNotFound: true);
         m_Dialog_Next = m_Dialog.FindAction("Next", throwIfNotFound: true);
+        m_Dialog_Yes = m_Dialog.FindAction("Yes", throwIfNotFound: true);
+        m_Dialog_No = m_Dialog.FindAction("No", throwIfNotFound: true);
+        // Block
+        m_Block = asset.FindActionMap("Block", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -238,6 +309,7 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Movement;
     private readonly InputAction m_Gameplay_Look;
     private readonly InputAction m_Gameplay_Interact;
+    private readonly InputAction m_Gameplay_Drop;
     public struct GameplayActions
     {
         private @GameControl m_Wrapper;
@@ -245,6 +317,7 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_Gameplay_Movement;
         public InputAction @Look => m_Wrapper.m_Gameplay_Look;
         public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
+        public InputAction @Drop => m_Wrapper.m_Gameplay_Drop;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -263,6 +336,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @Drop.started += instance.OnDrop;
+            @Drop.performed += instance.OnDrop;
+            @Drop.canceled += instance.OnDrop;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -276,6 +352,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @Drop.started -= instance.OnDrop;
+            @Drop.performed -= instance.OnDrop;
+            @Drop.canceled -= instance.OnDrop;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -298,11 +377,15 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Dialog;
     private List<IDialogActions> m_DialogActionsCallbackInterfaces = new List<IDialogActions>();
     private readonly InputAction m_Dialog_Next;
+    private readonly InputAction m_Dialog_Yes;
+    private readonly InputAction m_Dialog_No;
     public struct DialogActions
     {
         private @GameControl m_Wrapper;
         public DialogActions(@GameControl wrapper) { m_Wrapper = wrapper; }
         public InputAction @Next => m_Wrapper.m_Dialog_Next;
+        public InputAction @Yes => m_Wrapper.m_Dialog_Yes;
+        public InputAction @No => m_Wrapper.m_Dialog_No;
         public InputActionMap Get() { return m_Wrapper.m_Dialog; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -315,6 +398,12 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Next.started += instance.OnNext;
             @Next.performed += instance.OnNext;
             @Next.canceled += instance.OnNext;
+            @Yes.started += instance.OnYes;
+            @Yes.performed += instance.OnYes;
+            @Yes.canceled += instance.OnYes;
+            @No.started += instance.OnNo;
+            @No.performed += instance.OnNo;
+            @No.canceled += instance.OnNo;
         }
 
         private void UnregisterCallbacks(IDialogActions instance)
@@ -322,6 +411,12 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Next.started -= instance.OnNext;
             @Next.performed -= instance.OnNext;
             @Next.canceled -= instance.OnNext;
+            @Yes.started -= instance.OnYes;
+            @Yes.performed -= instance.OnYes;
+            @Yes.canceled -= instance.OnYes;
+            @No.started -= instance.OnNo;
+            @No.performed -= instance.OnNo;
+            @No.canceled -= instance.OnNo;
         }
 
         public void RemoveCallbacks(IDialogActions instance)
@@ -339,14 +434,58 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         }
     }
     public DialogActions @Dialog => new DialogActions(this);
+
+    // Block
+    private readonly InputActionMap m_Block;
+    private List<IBlockActions> m_BlockActionsCallbackInterfaces = new List<IBlockActions>();
+    public struct BlockActions
+    {
+        private @GameControl m_Wrapper;
+        public BlockActions(@GameControl wrapper) { m_Wrapper = wrapper; }
+        public InputActionMap Get() { return m_Wrapper.m_Block; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(BlockActions set) { return set.Get(); }
+        public void AddCallbacks(IBlockActions instance)
+        {
+            if (instance == null || m_Wrapper.m_BlockActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_BlockActionsCallbackInterfaces.Add(instance);
+        }
+
+        private void UnregisterCallbacks(IBlockActions instance)
+        {
+        }
+
+        public void RemoveCallbacks(IBlockActions instance)
+        {
+            if (m_Wrapper.m_BlockActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IBlockActions instance)
+        {
+            foreach (var item in m_Wrapper.m_BlockActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_BlockActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public BlockActions @Block => new BlockActions(this);
     public interface IGameplayActions
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
+        void OnDrop(InputAction.CallbackContext context);
     }
     public interface IDialogActions
     {
         void OnNext(InputAction.CallbackContext context);
+        void OnYes(InputAction.CallbackContext context);
+        void OnNo(InputAction.CallbackContext context);
+    }
+    public interface IBlockActions
+    {
     }
 }

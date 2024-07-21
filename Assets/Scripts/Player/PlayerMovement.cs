@@ -60,16 +60,36 @@ public class PlayerMovement : MonoBehaviour
     public void OnEnable()
     {
         gameControl.Gameplay.Interact.performed += Interact;
+        gameControl.Gameplay.Drop.performed += DropItem;
+
+        gameControl.Dialog.Yes.performed += DialogYes;
+        gameControl.Dialog.No.performed += DialogNo;
         gameControl.Dialog.Next.performed += DialogNext;
     }
     public void OnDisable()
     {
         gameControl.Gameplay.Interact.performed -= Interact;
+        gameControl.Gameplay.Drop.performed -= DropItem;
+
+        gameControl.Dialog.Yes.performed -= DialogYes;
+        gameControl.Dialog.No.performed -= DialogNo;
         gameControl.Dialog.Next.performed -= DialogNext;
     }
     private void Interact(InputAction.CallbackContext ctx)
     {
         interactEnvironment.Interact(this.gameObject);
+    }
+    private void DropItem(InputAction.CallbackContext ctx)
+    {
+        interactEnvironment.Drop();
+    }
+    private void DialogYes(InputAction.CallbackContext ctx)
+    {
+        _dialog.InteractSure(this.gameObject, true);
+    }
+    private void DialogNo(InputAction.CallbackContext ctx)
+    {
+        _dialog.InteractSure(this.gameObject, false);
     }
 
     private void DialogNext(InputAction.CallbackContext ctx) 
