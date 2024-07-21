@@ -7,4 +7,5 @@ public class DialogLine
 {
     public string text;
     public string colorWord;
+    public AudioClip audioClip;
 }

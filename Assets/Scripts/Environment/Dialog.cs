@@ -20,6 +20,7 @@ public class Dialog : MonoBehaviour
     public Item needItem;
     public int needItemIndex;
     public GameObject buttons;
+    public Animator endAnimator;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -29,9 +30,12 @@ public class Dialog : MonoBehaviour
     private bool firstShow;
     private DialogPhase phase;
     private int welcomeDialogsNum;
+    private int endDialogsNum;
     private int startColorIndex;
     private int endColorIndex;
     DialogLine _currentDialogLine;
+    private AudioSource audioSource;
+
     private DialogLine currentDialogLine 
     {
         get 
@@ -47,6 +51,12 @@ public class Dialog : MonoBehaviour
                 endColorIndex = startColorIndex;
             else
                 endColorIndex = startColorIndex + _currentDialogLine.colorWord.Length;
+
+            if (_currentDialogLine.audioClip != null)
+            {
+                audioSource.clip = _currentDialogLine.audioClip;
+                audioSource.Play();
+            }
         } 
     }
 
@@ -57,9 +67,11 @@ public class Dialog : MonoBehaviour
         dialogNeedToEnd = false;
         firstShow = true;
         welcomeDialogsNum = 0;
+        endDialogsNum = 0;
         startColorIndex = -1;
         endColorIndex = startColorIndex;
         needItemIndex = 0;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -200,7 +212,22 @@ public class Dialog : MonoBehaviour
         else
         {
             //todo end
+            //ExitDialog(player);
+            phase = DialogPhase.EndDead;
+        }
+    }
+    public void EndDead(GameObject player)
+    {
+        endAnimator.SetBool("End", true);
+        if (endDialogsNum < endDialogs.Count)
+        {
+            currentDialogLine = endDialogs[endDialogsNum];
+            endDialogsNum++;
+        }
+        else
+        {
             ExitDialog(player);
+            endAnimator.SetBool("End", false);
         }
     }
     public void Interact(GameObject player)  
@@ -233,6 +260,10 @@ public class Dialog : MonoBehaviour
         else if (phase == DialogPhase.FindRepeat)
         {
             FindRepeat();
+        }
+        else if (phase == DialogPhase.EndDead)
+        {
+            EndDead(player);
         }
 
         if (dialogStarted == true && dialogNeedToEnd == true)
