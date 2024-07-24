@@ -16,4 +16,8 @@ public class Item : MonoBehaviour
     {
         
     }
+    public virtual void ActionPickUp()
+    {
+
+    }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class InteractEnvironment : MonoBehaviour
 {
@@ -11,53 +12,63 @@ public class InteractEnvironment : MonoBehaviour
 	public GameObject camera;
 	public GameObject world;
 
-	private RaycastHit hit;
-	private bool isNoHit = true;
+	private RaycastHit hitInteract;
+	private bool isHit = false;
 
 	void Update()
     {
-		if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, DistanceInteract))
+		var isNoItem = false;
+		var isItem = false;
+		var hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, DistanceInteract);
+		foreach (var hit in hits)
 		{
-			if (hit.transform.GetComponent<DoorScript.Door>() != null || hit.transform.GetComponent<Dialog>() != null || hit.transform.GetComponent<Item>() != null)
-			{
-				text.SetActive(true);
-				isNoHit = false;
-			}
-			else
-			{
-				text.SetActive(false);
-				isNoHit = true;
-			}
+				Debug.DrawLine(camera.transform.position, camera.transform.position + camera.transform.forward * DistanceInteract, Color.red);
+				if (hit.transform.GetComponent<DoorScript.Door>() != null || hit.transform.GetComponent<Dialog>() != null || hit.transform.GetComponent<Item>() != null)
+				{
+					hitInteract = hit;
+					//text.SetActive(true);
+					isItem = true;
+				}
+
 		}
-		else
+
+		if (isItem == true)
 		{
+			isHit = true;
+			text.SetActive(true);
+		}
+		else 
+		{
+			isHit = false;
 			text.SetActive(false);
-			isNoHit = true;
 		}
+		
 	}
 
 	public void Interact(GameObject player)
 	{
 		Debug.Log("Interact");
-		if (isNoHit)
+		if (!isHit)
 			return;
 
-		if (hit.transform.GetComponent<DoorScript.Door>() != null)
+		if (hitInteract.transform.GetComponent<DoorScript.Door>() != null)
 		{
-			hit.transform.GetComponent<DoorScript.Door>().OpenDoor();
+			hitInteract.transform.GetComponent<DoorScript.Door>().OpenDoor();
 		}
-		else if (hit.transform.GetComponent<Dialog>() != null)
+		else if (hitInteract.transform.GetComponent<Dialog>() != null)
 		{
-			hit.transform.GetComponent<Dialog>().Interact(player);
+			hitInteract.transform.GetComponent<Dialog>().Interact(player);
 		}
-		else if (hit.transform.GetComponent<Item>() != null && itemInHands == null)
+		else if (hitInteract.transform.GetComponent<Item>() != null && itemInHands == null)
 		{
-			var item = hit.transform.GetComponent<Item>();
-			item.transform.position = itemPlace.transform.position;
-			item.transform.rotation = new Quaternion(0f,0f,0f,0f);
+			var item = hitInteract.transform.GetComponent<Item>();
 			item.GetComponent<Rigidbody>().isKinematic = true;
 			item.transform.parent = itemPlace.transform;
+			item.transform.position = itemPlace.transform.position;
+			item.transform.localRotation = new Quaternion(70f, 50f, 50f, 0f);
 			itemInHands = item;
+			if (itemInHands != null)
+				itemInHands.ActionPickUp();
 		}
 	}
 	public void Drop()
