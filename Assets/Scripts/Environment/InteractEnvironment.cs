@@ -77,6 +77,7 @@ public class InteractEnvironment : MonoBehaviour
 		{
 			itemInHands.GetComponent<Rigidbody>().isKinematic = false;
 			itemInHands.transform.parent = world.transform;
+			itemInHands.Drop();
 			itemInHands = null;
 		}
 	}
