@@ -9,6 +9,7 @@ public class Dialog : MonoBehaviour
     public GameObject focusPoint;
     public TMP_Text textDialog;
     public TMP_Text personDialog;
+    public string personName;
     public Animator animatorDialog;
     public List<DialogLine> welcomeDialogs;
     public DialogLine areYouSure;
@@ -25,10 +26,10 @@ public class Dialog : MonoBehaviour
     Mesh mesh;
     Vector3[] vertices;
 
-    private bool dialogStarted;
-    private bool dialogNeedToEnd;
-    private bool firstShow;
-    private DialogPhase phase;
+    protected bool dialogStarted;
+    protected bool dialogNeedToEnd;
+    protected bool firstShow;
+    protected DialogPhase phase;
     private int welcomeDialogsNum;
     private int endDialogsNum;
     private int startColorIndex;
@@ -107,6 +108,7 @@ public class Dialog : MonoBehaviour
     {
         dialogStarted = true;
         player.GetComponent<PlayerMovement>().OnDialog(focusPoint, this);
+        personDialog.text = personName;
 
         if (phase == DialogPhase.NotStarted)
             phase = DialogPhase.Welcome;
@@ -132,7 +134,8 @@ public class Dialog : MonoBehaviour
         else
         {
             dialogNeedToEnd = true;
-            needItem = items[0];
+            if(items.Count > 0)
+                needItem = items[0];
         }
     }
 
@@ -230,7 +233,7 @@ public class Dialog : MonoBehaviour
             endAnimator.SetBool("End", false);
         }
     }
-    public void Interact(GameObject player)  
+    public virtual void Interact(GameObject player)  
     {
         if (dialogStarted == false)
         {
@@ -273,7 +276,7 @@ public class Dialog : MonoBehaviour
         dialogNeedToEnd = false;
 
     }
-    private enum DialogPhase
+    protected enum DialogPhase
     {
         NotStarted,
         Welcome,

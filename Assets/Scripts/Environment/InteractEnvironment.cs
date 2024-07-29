@@ -57,15 +57,18 @@ public class InteractEnvironment : MonoBehaviour
 		}
 		else if (hitInteract.transform.GetComponent<Dialog>() != null)
 		{
-			hitInteract.transform.GetComponent<Dialog>().Interact(player);
+			if (hitInteract.transform.GetComponent<Dialog>().enabled)
+				hitInteract.transform.GetComponent<Dialog>().Interact(player);
 		}
-		else if (hitInteract.transform.GetComponent<Item>() != null && itemInHands == null)
+		if (hitInteract.transform.GetComponent<Item>() != null && itemInHands == null)
 		{
 			var item = hitInteract.transform.GetComponent<Item>();
+			if (!item.enabled)
+				return;
 			item.GetComponent<Rigidbody>().isKinematic = true;
 			item.transform.parent = itemPlace.transform;
-			item.transform.position = itemPlace.transform.position;
-			item.transform.localRotation = new Quaternion(70f, 50f, 50f, 0f);
+			item.transform.localPosition = itemPlace.transform.localPosition + item.position;
+			item.transform.localRotation = item.quaternion; //new Quaternion(70f, 50f, 50f, 0f);
 			itemInHands = item;
 			if (itemInHands != null)
 				itemInHands.ActionPickUp();
