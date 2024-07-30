@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private InteractEnvironment interactEnvironment;
     private GameObject lookAtTarget;
     private Dialog _dialog;
+    private PlayerSounds playerSounds;
 
     public float speed = 4f;
     public float sensitivity = 10f;
@@ -22,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     {
         characterController = this.GetComponent<CharacterController>();
         interactEnvironment = this.GetComponent<InteractEnvironment>();
+        playerSounds = GetComponent<PlayerSounds>();
         camera = this.GetComponentInChildren<Camera>();
     }
 
@@ -35,6 +37,10 @@ public class PlayerMovement : MonoBehaviour
             rotationY -= look.y;
             rotationY = Mathf.Clamp(rotationY, -90f, 90f);
             camera.transform.localRotation = Quaternion.Euler(rotationY, 0f, 0f);
+
+            Debug.Log("direction.x: " + direction.x + " direction.y: " + direction.y);
+            if (direction.x > 0.01f || direction.y > 0.01f)
+                playerSounds.TryPlayMoveSound();
 
             Vector3 movement = transform.right * direction.x + transform.forward * direction.y;
             characterController.Move(movement);

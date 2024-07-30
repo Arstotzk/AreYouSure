@@ -10,11 +10,13 @@ public class Lightbulb : Item
     private Animator animator;
     private AudioSource audioSource;
     private bool isOn = false;
+    private TurnOfLight turnOf;
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        turnOf = GetComponent<TurnOfLight>();
     }
 
     // Update is called once per frame
@@ -34,12 +36,14 @@ public class Lightbulb : Item
         yield return new WaitForSeconds(sec);
         if (!isOn)
         {
+            turnOf.TurnOff();
             animator.SetBool("IsOn", true);
             isOn = true;
         }
     }
     public override void Drop()
     {
+        turnOf.TurnOn();
         animator.SetBool("IsOn", false);
         audioSource.Stop();
         isOn = false;

@@ -22,6 +22,8 @@ public class Dialog : MonoBehaviour
     public int needItemIndex;
     public GameObject buttons;
     public Animator endAnimator;
+    public AudioClip lightBroke;
+    public float textDelaySpeed = 0.05f;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -34,6 +36,7 @@ public class Dialog : MonoBehaviour
     private int endDialogsNum;
     private int startColorIndex;
     private int endColorIndex;
+    private TurnOfLight lightOf;
     DialogLine _currentDialogLine;
     private AudioSource audioSource;
 
@@ -46,12 +49,8 @@ public class Dialog : MonoBehaviour
         set 
         {
             _currentDialogLine = value;
-            textDialog.text = _currentDialogLine.text;
-            startColorIndex = _currentDialogLine.text.IndexOf(_currentDialogLine.colorWord);
-            if (startColorIndex == -1)
-                endColorIndex = startColorIndex;
-            else
-                endColorIndex = startColorIndex + _currentDialogLine.colorWord.Length;
+            //textDialog.text = _currentDialogLine.text;
+            StartCoroutine(PrintText(_currentDialogLine.text));
 
             if (_currentDialogLine.audioClip != null)
             {
@@ -69,10 +68,9 @@ public class Dialog : MonoBehaviour
         firstShow = true;
         welcomeDialogsNum = 0;
         endDialogsNum = 0;
-        startColorIndex = -1;
-        endColorIndex = startColorIndex;
         needItemIndex = 0;
         audioSource = GetComponent<AudioSource>();
+        lightOf = GetComponent<TurnOfLight>();
     }
 
     // Update is called once per frame
@@ -103,6 +101,24 @@ public class Dialog : MonoBehaviour
     Vector2 Woubble(float time)
     {
         return new Vector2(Mathf.Sin(time * 3.0f), Mathf.Cos(time * 3.0f));
+    }
+
+    private IEnumerator PrintText(string text) 
+    {
+        yield return new WaitForSeconds(0.4f);
+        textDialog.text = string.Empty;
+        var isMarking = false;
+        for (var i = 0; i < text.Length; i++) 
+        {
+            textDialog.text += text[i];
+            if (text[i].ToString() == "<")
+                isMarking = true;
+            if (text[i].ToString() == ">")
+                isMarking = false;
+            if (!isMarking)
+                yield return new WaitForSeconds(textDelaySpeed);
+        }
+        audioSource.Stop();
     }
     public void StartDialog(GameObject player) 
     {
@@ -143,7 +159,11 @@ public class Dialog : MonoBehaviour
     {
         if (firstShow == true)
         {
-            var findRepeatItem = findRepeat;
+            var findRepeatItem = new DialogLine();
+            if (needItem.itemName == "lightbulb") 
+                findRepeatItem.audioClip = lightBroke;
+            else
+                findRepeatItem.audioClip = findRepeat.audioClip;
             findRepeatItem.text = string.Format(findRepeat.text, needItem.itemName);
             currentDialogLine = findRepeatItem;
             firstShow = false;
@@ -171,6 +191,7 @@ public class Dialog : MonoBehaviour
 
         buttons.SetActive(false);
         var isMimic = player.GetComponent<InteractEnvironment>().itemInHands.isMimic;
+        var itemName = player.GetComponent<InteractEnvironment>().itemInHands.itemName;
         if (isMimic && isSure)
         {
             //TODO damage player
@@ -192,6 +213,10 @@ public class Dialog : MonoBehaviour
             dialogStarted = false;
             dialogNeedToEnd = false;
         }
+        if (itemName == "lightbulb")
+        {
+            lightOf.TurnOn();
+        }
     }
     public void YouSmart()
     {
@@ -207,6 +232,9 @@ public class Dialog : MonoBehaviour
         if (needItemIndex < items.Count)
         {
             needItem = items[needItemIndex];
+            Debug.Log("needItem: " + needItem.itemName);
+            if (needItem.itemName == "lightbulb")
+                lightOf.TurnOff();
             firstShow = true;
             Destroy(player.GetComponent<InteractEnvironment>().itemInHands.gameObject);
             FindRepeat();
