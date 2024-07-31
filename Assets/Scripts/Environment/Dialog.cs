@@ -40,6 +40,7 @@ public class Dialog : MonoBehaviour
     private TurnOfLight lightOf;
     DialogLine _currentDialogLine;
     private AudioSource audioSource;
+    private int dialogCalls = 0;
 
     private DialogLine currentDialogLine 
     {
@@ -106,11 +107,15 @@ public class Dialog : MonoBehaviour
 
     private IEnumerator PrintText(string text) 
     {
+        dialogCalls++;
+        var currentCall = dialogCalls;
         yield return new WaitForSeconds(0.4f);
         textDialog.text = string.Empty;
         var isMarking = false;
         for (var i = 0; i < text.Length; i++) 
         {
+            if (currentCall < dialogCalls)
+                yield break;
             textDialog.text += text[i];
             if (text[i].ToString() == "<")
                 isMarking = true;
