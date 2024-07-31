@@ -9,6 +9,7 @@ public class TurnOfLight : MonoBehaviour
     public List<Light> lights;
     public Material lightOn;
     public Material lightOff;
+    public AudioSource audioSource;
     void Start()
     {
         
@@ -33,6 +34,8 @@ public class TurnOfLight : MonoBehaviour
             materials[materialIndex] = lightOff;
             renderer.SetMaterials(materials);
         }
+        if (audioSource != null)
+            audioSource.Play();
     }
     public void TurnOn()
     {

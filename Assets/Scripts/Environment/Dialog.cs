@@ -22,7 +22,6 @@ public class Dialog : MonoBehaviour
     public int needItemIndex;
     public GameObject buttons;
     public Animator endAnimator;
-    public AudioClip lightBroke;
     public float textDelaySpeed = 0.05f;
     public GameObject dropHint;
 
@@ -166,10 +165,7 @@ public class Dialog : MonoBehaviour
         if (firstShow == true)
         {
             var findRepeatItem = new DialogLine();
-            if (needItem.itemName == "lightbulb") 
-                findRepeatItem.audioClip = lightBroke;
-            else
-                findRepeatItem.audioClip = findRepeat.audioClip;
+            findRepeatItem.audioClip = findRepeat.audioClip;
             findRepeatItem.text = string.Format(findRepeat.text, needItem.itemName);
             currentDialogLine = findRepeatItem;
             firstShow = false;

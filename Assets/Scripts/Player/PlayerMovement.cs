@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
             rotationY = Mathf.Clamp(rotationY, -90f, 90f);
             camera.transform.localRotation = Quaternion.Euler(rotationY, 0f, 0f);
 
-            Debug.Log("direction.x: " + direction.x + " direction.y: " + direction.y);
+            //Debug.Log("direction.x: " + direction.x + " direction.y: " + direction.y);
             if (direction.x > 0.01f || direction.y > 0.01f)
                 playerSounds.TryPlayMoveSound();
 
