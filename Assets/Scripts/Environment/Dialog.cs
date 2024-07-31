@@ -24,6 +24,7 @@ public class Dialog : MonoBehaviour
     public Animator endAnimator;
     public AudioClip lightBroke;
     public float textDelaySpeed = 0.05f;
+    public GameObject dropHint;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -194,16 +195,15 @@ public class Dialog : MonoBehaviour
         var itemName = player.GetComponent<InteractEnvironment>().itemInHands.itemName;
         if (isMimic && isSure)
         {
-            //TODO damage player
+            dropHint.SetActive(false);
             player.GetComponent<PlayerHealth>().Damage();
             YouWrong();
             phase = DialogPhase.FindNextItem;
         }
         if (!isMimic && isSure)
         {
-            //TODO next step
+            dropHint.SetActive(false);
             YouSmart();
-            //FindNextItem(player);
             phase = DialogPhase.FindNextItem;
         }
         if (!isSure)

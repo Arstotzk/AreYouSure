@@ -7,6 +7,7 @@ public class InteractEnvironment : MonoBehaviour
 {
 	public float DistanceInteract = 3;
 	public GameObject text;
+	public GameObject dropHint;
 	public GameObject itemPlace;
 	public Item itemInHands;
 	public GameObject camera;
@@ -68,10 +69,14 @@ public class InteractEnvironment : MonoBehaviour
 			item.GetComponent<Rigidbody>().isKinematic = true;
 			item.transform.parent = itemPlace.transform;
 			item.transform.localPosition = itemPlace.transform.localPosition + item.position;
-			item.transform.localRotation = item.quaternion; //new Quaternion(70f, 50f, 50f, 0f);
+			item.transform.localRotation = item.quaternion;
 			itemInHands = item;
 			if (itemInHands != null)
+			{
+				dropHint.SetActive(true);
 				itemInHands.ActionPickUp();
+
+			}
 		}
 	}
 	public void Drop()
@@ -82,6 +87,7 @@ public class InteractEnvironment : MonoBehaviour
 			itemInHands.transform.parent = world.transform;
 			itemInHands.Drop();
 			itemInHands = null;
+			dropHint.SetActive(false);
 		}
 	}
 }
