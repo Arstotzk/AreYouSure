@@ -20,10 +20,9 @@ public class DialogItem : Dialog
         {
             ExitDialog(player);
             SetItemActive();
+            dialogStarted = false;
+            dialogNeedToEnd = false;
         }
-
-        dialogStarted = false;
-        dialogNeedToEnd = false;
     }
 
     private void SetItemActive() 

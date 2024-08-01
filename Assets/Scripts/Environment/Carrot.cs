@@ -8,7 +8,7 @@ public class Carrot : Item
     private Animator animator;
     private AudioSource audioSource;
     private bool isShowed = false;
-    void Start()
+    new void Start()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();

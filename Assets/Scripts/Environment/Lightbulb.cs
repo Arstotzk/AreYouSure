@@ -12,7 +12,7 @@ public class Lightbulb : Item
     private bool isOn = false;
     private TurnOfLight turnOf;
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();

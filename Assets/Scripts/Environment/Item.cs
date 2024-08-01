@@ -9,9 +9,11 @@ public class Item : MonoBehaviour
     public bool isMimic;
     public Quaternion quaternion = new Quaternion(70f, 50f, 50f, 0f);
     public Vector3 position = new Vector3(0f, 0f, 0f);
-    void Start()
+
+    public AudioSource pickUpSound;
+    public void Start()
     {
-        
+
     }
     // Update is called once per frame
     void Update()
@@ -20,7 +22,7 @@ public class Item : MonoBehaviour
     }
     public virtual void ActionPickUp()
     {
-
+        pickUpSound.Play();
     }
     public virtual void Drop()
     {

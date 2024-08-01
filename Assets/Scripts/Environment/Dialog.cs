@@ -24,6 +24,7 @@ public class Dialog : MonoBehaviour
     public Animator endAnimator;
     public float textDelaySpeed = 0.05f;
     public GameObject dropHint;
+    public AudioSource showDialogSound;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -108,6 +109,12 @@ public class Dialog : MonoBehaviour
     {
         dialogCalls++;
         var currentCall = dialogCalls;
+        //clear text
+        if (string.IsNullOrEmpty(text))
+        {
+            textDialog.text = "           ";
+            yield break;
+        }
         yield return new WaitForSeconds(0.4f);
         textDialog.text = string.Empty;
         var isMarking = false;
@@ -127,6 +134,7 @@ public class Dialog : MonoBehaviour
     }
     public void StartDialog(GameObject player) 
     {
+        showDialogSound.Play();
         dialogStarted = true;
         player.GetComponent<PlayerMovement>().OnDialog(focusPoint, this);
         personDialog.text = personName;
@@ -143,6 +151,7 @@ public class Dialog : MonoBehaviour
         player.GetComponent<PlayerMovement>().ExitDialog();
         animatorDialog.SetBool("IsShow", false);
         firstShow = true;
+        StartCoroutine(PrintText(string.Empty));
     }
 
     public void WelcomeDialog()
@@ -299,11 +308,11 @@ public class Dialog : MonoBehaviour
         }
 
         if (dialogStarted == true && dialogNeedToEnd == true)
+        {
             ExitDialog(player);
-
-        dialogStarted = false;
-        dialogNeedToEnd = false;
-
+            dialogStarted = false;
+            dialogNeedToEnd = false;
+        }
     }
     protected enum DialogPhase
     {
