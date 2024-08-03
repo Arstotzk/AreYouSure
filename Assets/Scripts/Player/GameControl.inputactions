@@ -40,6 +40,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "6a931290-0a8b-45dc-bcd1-5215a75fa8d7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -130,6 +139,17 @@
                     "action": "Drop",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d3cb662b-e80c-4e18-b43f-0f3d18ee13ac",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -206,6 +226,34 @@
             "id": "91c07b5c-0c58-4924-b89b-fde4f3b63a43",
             "actions": [],
             "bindings": []
+        },
+        {
+            "name": "Menu",
+            "id": "d7db7b59-3ff5-4d8a-8b4b-5df8f7151d9f",
+            "actions": [
+                {
+                    "name": "UnshowMenu",
+                    "type": "Button",
+                    "id": "3cbba8bc-9eb6-4438-b0d8-9429923b2731",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "73807d88-ab56-4eaa-80d4-11980377b055",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UnshowMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

@@ -62,6 +62,15 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Menu"",
+                    ""type"": ""Button"",
+                    ""id"": ""6a931290-0a8b-45dc-bcd1-5215a75fa8d7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -152,6 +161,17 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
                     ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3cb662b-e80c-4e18-b43f-0f3d18ee13ac"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Menu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -228,6 +248,34 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             ""id"": ""91c07b5c-0c58-4924-b89b-fde4f3b63a43"",
             ""actions"": [],
             ""bindings"": []
+        },
+        {
+            ""name"": ""Menu"",
+            ""id"": ""d7db7b59-3ff5-4d8a-8b4b-5df8f7151d9f"",
+            ""actions"": [
+                {
+                    ""name"": ""UnshowMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""3cbba8bc-9eb6-4438-b0d8-9429923b2731"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""73807d88-ab56-4eaa-80d4-11980377b055"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UnshowMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -238,6 +286,7 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         m_Gameplay_Look = m_Gameplay.FindAction("Look", throwIfNotFound: true);
         m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
         m_Gameplay_Drop = m_Gameplay.FindAction("Drop", throwIfNotFound: true);
+        m_Gameplay_Menu = m_Gameplay.FindAction("Menu", throwIfNotFound: true);
         // Dialog
         m_Dialog = asset.FindActionMap("Dialog", throwIfNotFound: true);
         m_Dialog_Next = m_Dialog.FindAction("Next", throwIfNotFound: true);
@@ -245,6 +294,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         m_Dialog_No = m_Dialog.FindAction("No", throwIfNotFound: true);
         // Block
         m_Block = asset.FindActionMap("Block", throwIfNotFound: true);
+        // Menu
+        m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
+        m_Menu_UnshowMenu = m_Menu.FindAction("UnshowMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -310,6 +362,7 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Look;
     private readonly InputAction m_Gameplay_Interact;
     private readonly InputAction m_Gameplay_Drop;
+    private readonly InputAction m_Gameplay_Menu;
     public struct GameplayActions
     {
         private @GameControl m_Wrapper;
@@ -318,6 +371,7 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         public InputAction @Look => m_Wrapper.m_Gameplay_Look;
         public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
         public InputAction @Drop => m_Wrapper.m_Gameplay_Drop;
+        public InputAction @Menu => m_Wrapper.m_Gameplay_Menu;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -339,6 +393,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Drop.started += instance.OnDrop;
             @Drop.performed += instance.OnDrop;
             @Drop.canceled += instance.OnDrop;
+            @Menu.started += instance.OnMenu;
+            @Menu.performed += instance.OnMenu;
+            @Menu.canceled += instance.OnMenu;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -355,6 +412,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
             @Drop.started -= instance.OnDrop;
             @Drop.performed -= instance.OnDrop;
             @Drop.canceled -= instance.OnDrop;
+            @Menu.started -= instance.OnMenu;
+            @Menu.performed -= instance.OnMenu;
+            @Menu.canceled -= instance.OnMenu;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -472,12 +532,59 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
         }
     }
     public BlockActions @Block => new BlockActions(this);
+
+    // Menu
+    private readonly InputActionMap m_Menu;
+    private List<IMenuActions> m_MenuActionsCallbackInterfaces = new List<IMenuActions>();
+    private readonly InputAction m_Menu_UnshowMenu;
+    public struct MenuActions
+    {
+        private @GameControl m_Wrapper;
+        public MenuActions(@GameControl wrapper) { m_Wrapper = wrapper; }
+        public InputAction @UnshowMenu => m_Wrapper.m_Menu_UnshowMenu;
+        public InputActionMap Get() { return m_Wrapper.m_Menu; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(MenuActions set) { return set.Get(); }
+        public void AddCallbacks(IMenuActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MenuActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MenuActionsCallbackInterfaces.Add(instance);
+            @UnshowMenu.started += instance.OnUnshowMenu;
+            @UnshowMenu.performed += instance.OnUnshowMenu;
+            @UnshowMenu.canceled += instance.OnUnshowMenu;
+        }
+
+        private void UnregisterCallbacks(IMenuActions instance)
+        {
+            @UnshowMenu.started -= instance.OnUnshowMenu;
+            @UnshowMenu.performed -= instance.OnUnshowMenu;
+            @UnshowMenu.canceled -= instance.OnUnshowMenu;
+        }
+
+        public void RemoveCallbacks(IMenuActions instance)
+        {
+            if (m_Wrapper.m_MenuActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IMenuActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MenuActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MenuActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public MenuActions @Menu => new MenuActions(this);
     public interface IGameplayActions
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
+        void OnMenu(InputAction.CallbackContext context);
     }
     public interface IDialogActions
     {
@@ -487,5 +594,9 @@ public partial class @GameControl: IInputActionCollection2, IDisposable
     }
     public interface IBlockActions
     {
+    }
+    public interface IMenuActions
+    {
+        void OnUnshowMenu(InputAction.CallbackContext context);
     }
 }

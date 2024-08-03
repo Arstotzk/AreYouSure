@@ -270,6 +270,9 @@ public class Dialog : MonoBehaviour
     }
     public void EndDead(GameObject player)
     {
+        if(player.GetComponent<InteractEnvironment>().itemInHands != null)
+            Destroy(player.GetComponent<InteractEnvironment>().itemInHands.gameObject);
+
         endAnimator.SetBool("End", true);
         if (endDialogsNum < endDialogs.Count)
         {

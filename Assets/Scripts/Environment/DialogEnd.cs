@@ -34,16 +34,18 @@ public class DialogEnd : MonoBehaviour
 
         audioSource.clip = cookingClip;
         audioSource.Play();
-        StartCoroutine(TitleShow(audioSource.clip.length));
+        endAnimator.SetBool("HeadMove", true);
+        StartCoroutine(TitleShow(audioSource.clip.length, player));
     }
 
-    private IEnumerator TitleShow(float sec) 
+    private IEnumerator TitleShow(float sec, GameObject player) 
     {
         yield return new WaitForSeconds(sec);
         audioSource.clip = doneClip;
         audioSource.Play();
         title.SetActive(true);
         healthUI.SetActive(false);
+        player.GetComponent<PlayerMovement>().DisableGameplay();
     }
     
 }

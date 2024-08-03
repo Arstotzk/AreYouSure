@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = 9.8f;
     public float lookAtSpeed = 8f;
 
+    public GameObject menuUI;
+
     float rotationY = 0f;
     void Start()
     {
@@ -39,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
             camera.transform.localRotation = Quaternion.Euler(rotationY, 0f, 0f);
 
             //Debug.Log("direction.x: " + direction.x + " direction.y: " + direction.y);
-            if (direction.x > 0.01f || direction.y > 0.01f)
+            if (direction.x > 0.0001f || direction.y > 0.0001f)
                 playerSounds.TryPlayMoveSound();
 
             Vector3 movement = transform.right * direction.x + transform.forward * direction.y;
@@ -62,24 +64,32 @@ public class PlayerMovement : MonoBehaviour
         gameControl = new GameControl();
         gameControl.Enable();
         gameControl.Dialog.Disable();
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
     public void OnEnable()
     {
         gameControl.Gameplay.Interact.performed += Interact;
         gameControl.Gameplay.Drop.performed += DropItem;
+        gameControl.Gameplay.Menu.performed += ShowMenu;
 
         gameControl.Dialog.Yes.performed += DialogYes;
         gameControl.Dialog.No.performed += DialogNo;
         gameControl.Dialog.Next.performed += DialogNext;
+
+        gameControl.Menu.UnshowMenu.performed += UnshowMenu;
     }
     public void OnDisable()
     {
         gameControl.Gameplay.Interact.performed -= Interact;
         gameControl.Gameplay.Drop.performed -= DropItem;
+        gameControl.Gameplay.Menu.performed -= ShowMenu;
 
         gameControl.Dialog.Yes.performed -= DialogYes;
         gameControl.Dialog.No.performed -= DialogNo;
         gameControl.Dialog.Next.performed -= DialogNext;
+
+        gameControl.Menu.UnshowMenu.performed -= UnshowMenu;
     }
     private void Interact(InputAction.CallbackContext ctx)
     {
@@ -110,6 +120,8 @@ public class PlayerMovement : MonoBehaviour
         gameControl.Gameplay.Disable();
         gameControl.Dialog.Enable();
         lookAtTarget = focusPoint;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
     public void ExitDialog()
     {
@@ -119,5 +131,28 @@ public class PlayerMovement : MonoBehaviour
     public void DisableCharacterController() 
     {
         characterController.enabled = false;
+    }
+    private void ShowMenu(InputAction.CallbackContext ctx) 
+    {
+        menuUI.SetActive(true);
+        gameControl.Gameplay.Disable();
+        gameControl.Menu.Enable();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Confined;
+    }
+    private void UnshowMenu(InputAction.CallbackContext ctx)
+    {
+        menuUI.SetActive(false);
+        gameControl.Gameplay.Enable();
+        gameControl.Menu.Disable();
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+    public void DisableGameplay() 
+    {
+        gameControl.Gameplay.Disable();
+        gameControl.Block.Enable();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Confined;
     }
 }
