@@ -116,4 +116,8 @@ public class PlayerMovement : MonoBehaviour
         gameControl.Gameplay.Enable();
         gameControl.Dialog.Disable();
     }
+    public void DisableCharacterController() 
+    {
+        characterController.enabled = false;
+    }
 }

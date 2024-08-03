@@ -25,6 +25,8 @@ public class Dialog : MonoBehaviour
     public float textDelaySpeed = 0.05f;
     public GameObject dropHint;
     public AudioSource showDialogSound;
+    public AudioSource addendaSound;
+    public DialogEnd dialogEnd;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -58,6 +60,12 @@ public class Dialog : MonoBehaviour
             {
                 audioSource.clip = _currentDialogLine.audioClip;
                 audioSource.Play();
+            }
+
+            if (_currentDialogLine.addendaClip != null)
+            {
+                addendaSound.clip = _currentDialogLine.addendaClip;
+                addendaSound.Play();
             }
         } 
     }
@@ -208,7 +216,10 @@ public class Dialog : MonoBehaviour
             dropHint.SetActive(false);
             player.GetComponent<PlayerHealth>().Damage();
             YouWrong();
-            phase = DialogPhase.FindNextItem;
+            if (player.GetComponent<PlayerHealth>().health <= 0)
+                phase = DialogPhase.EndDead;
+            else
+                phase = DialogPhase.FindNextItem;
         }
         if (!isMimic && isSure)
         {
@@ -267,7 +278,9 @@ public class Dialog : MonoBehaviour
         }
         else
         {
+            dialogEnd.PutPlayer(player);
             ExitDialog(player);
+            player.GetComponent<PlayerMovement>().DisableCharacterController();
             endAnimator.SetBool("End", false);
         }
     }
