@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public float sensitivity = 10f;
     public float gravity = 9.8f;
     public float lookAtSpeed = 8f;
+    public Animator itemAnimator;
 
     public GameObject menuUI;
 
@@ -42,7 +43,14 @@ public class PlayerMovement : MonoBehaviour
 
             //Debug.Log("direction.x: " + direction.x + " direction.y: " + direction.y);
             if (direction.x > 0.0001f || direction.y > 0.0001f)
+            {
                 playerSounds.TryPlayMoveSound();
+                itemAnimator.SetBool("IsWalk", true);
+            }
+            else
+            {
+                itemAnimator.SetBool("IsWalk", false);
+            }
 
             Vector3 movement = transform.right * direction.x + transform.forward * direction.y;
             characterController.Move(movement);

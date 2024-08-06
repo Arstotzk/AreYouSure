@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerSounds : MonoBehaviour
 {
     public List<AudioClip> walkClips;
-    public float walkDelay = 0.2f;
+    public float walkDelay = 0.3f;
     private AudioSource moveAudio;
     private bool isMoveCoroutineStart;
     // Start is called before the first frame update
