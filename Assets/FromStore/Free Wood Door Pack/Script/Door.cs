@@ -15,6 +15,7 @@ namespace DoorScript
 		private int framesTry = 5;
 		private int frame;
 		public float smooth = 1.0f;
+		public float angryClose = 1.0f;
 		float DoorOpenAngle = -90.0f;
 	    float DoorCloseAngle = 0.0f;
 		float DoorOpenAngleTry = -5f;
@@ -35,7 +36,7 @@ namespace DoorScript
 			else
 			{
 	            var target1= Quaternion.Euler (0, DoorCloseAngle, 0);
-	            transform.localRotation = Quaternion.Slerp(transform.localRotation, target1, Time.deltaTime * 5 * smooth);
+	            transform.localRotation = Quaternion.Slerp(transform.localRotation, target1, Time.deltaTime * 5 * smooth * angryClose);
 		
 			}
 			if (!isCanOpen)
